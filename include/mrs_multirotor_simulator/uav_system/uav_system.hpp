@@ -1,7 +1,10 @@
 #ifndef UAV_SYSTEM_H
 #define UAV_SYSTEM_H
 
-#include "multirotor_model.hpp"
+// Cable-suspended load
+// #include "../multirotor_model.hpp"
+#include "../multirotor_model_cable_suspended_load.hpp"
+
 
 #include "controllers/mixer.hpp"
 #include "controllers/rate_controller.hpp"

@@ -274,7 +274,7 @@ void UavSystemRos::makeStep(const double dt) {
   MultirotorModel::State state = uav_system_.getState();
 
   // publish data
-
+ 
   publishOdometry(state);
 
   publishIMU(state);

@@ -383,6 +383,12 @@ void MultirotorSimulator::publishPoses(void) {
     pose.orientation = mrs_lib::AttitudeConverter(state.R);
 
     pose_array.poses.push_back(pose);
+
+    // Cable-suspended load
+    // ROS_INFO("[%s]: initialized", _uav_name_.c_str());
+    // ROS_INFO("[%f]: initialized", _uav_name_.c_str());
+    ROS_INFO("Cable state -> [%2.3f, %2.3f, %2.3f]",state.q_cable(0), state.q_cable(1), state.q_cable(2));
+
   }
 
   ph_poses_.publish(pose_array);

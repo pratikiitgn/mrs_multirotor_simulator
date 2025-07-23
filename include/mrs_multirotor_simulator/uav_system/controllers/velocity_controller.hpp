@@ -3,7 +3,11 @@
 
 #include "pid.hpp"
 #include "references.hpp"
-#include "../multirotor_model.hpp"
+
+// Cable-suspended load
+// #include "../multirotor_model.hpp"
+#include "../multirotor_model_cable_suspended_load.hpp"
+
 
 namespace mrs_multirotor_simulator
 {
