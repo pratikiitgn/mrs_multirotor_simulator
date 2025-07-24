@@ -49,8 +49,8 @@ public:
       air_resistance_coeff = 0.30;
 
       // Cable-suspended load
-      mp                   = 0.1;
-      lp                   = 1;
+      mp                   = 0.1;           // mass of load
+      lp                   = 1;             // length of cable
 
       J       = Eigen::Matrix3d::Zero();
       J(0, 0) = mass * (3.0 * arm_length * arm_length + body_height * body_height) / 12.0;
@@ -74,10 +74,6 @@ public:
 
       ground_enabled        = false;
       takeoff_patch_enabled = true;
-
-      // Cable-suspended load
-      // mp                  = 0.1;      // mass of the payload
-      // lp                  = 1.0;      // length of cable
 
     }
 
@@ -199,7 +195,7 @@ MultirotorModel::MultirotorModel(const MultirotorModel::ModelParams& params, con
   state_.R = Eigen::AngleAxis(-spawn_heading, Eigen::Vector3d(0, 0, 1));
 
   // Cable-suspended load
-  state_.q_cable = Eigen::Vector3d::Zero();
+  state_.q_cable = Eigen::Vector3d(0.0,0.0,-1.0);
 
   updateInternalState();
 }
@@ -217,7 +213,7 @@ void MultirotorModel::initializeState(void) {
   state_.omega  = Eigen::Vector3d::Zero();
 
   // Cable-suspended load
-  state_.q_cable      = Eigen::Vector3d::Zero();
+  state_.q_cable      = Eigen::Vector3d(0.0,0.0,-1.0);
   state_.q_dot_cable  = Eigen::Vector3d::Zero();
 
   imu_acceleration_   = Eigen::Vector3d::Zero();
@@ -353,8 +349,8 @@ void MultirotorModel::operator()(const MultirotorModel::InternalState& x, Multir
     cur_state.omega(i) = x.at(15 + i);
 
   // Cable-suspended load
-    state_.q_cable(i)       = internal_state_.at(18 + i);
-    state_.q_dot_cable(i)   = internal_state_.at(21 + i);
+    cur_state.q_cable(i)       = x.at(18 + i);
+    cur_state.q_dot_cable(i)   = x.at(21 + i);
 
   }
 
@@ -367,6 +363,10 @@ void MultirotorModel::operator()(const MultirotorModel::InternalState& x, Multir
   Eigen::Vector3d v_dot;
   Eigen::Vector3d omega_dot;
   Eigen::Matrix3d R_dot;
+
+  // Cable-suspended load
+  Eigen::Vector3d q_dot_cable_local;
+  Eigen::Vector3d q_dot_dot_cable_local;
 
   Eigen::Matrix3d omega_tensor(Eigen::Matrix3d::Zero());
 
@@ -390,12 +390,36 @@ void MultirotorModel::operator()(const MultirotorModel::InternalState& x, Multir
   }
 
   x_dot = cur_state.v;
+  // Cable-suspended load
+  q_dot_cable_local        = cur_state.q_dot_cable;
+  Eigen::Vector3d u_vector = thrust * R.col(2);
 
-  v_dot = -Eigen::Vector3d(0, 0, params_.g) + thrust * R.col(2) / params_.mass + external_force_ / params_.mass - resistance * vnorm / params_.mass;
+  // Cable-suspended load
+  // v_dot = -Eigen::Vector3d(0, 0, params_.g) + thrust * R.col(2) / params_.mass + external_force_ / params_.mass - resistance * vnorm / params_.mass;
+
+  // Gravity terms
+  v_dot = - (params_.mass + params_.mp)* Eigen::Vector3d(0, 0, params_.g);
+  // Control Input term
+  v_dot = v_dot + u_vector  -  (params_.mp / params_.mass) * cur_state.q_cable.cross(cur_state.q_cable.cross(u_vector));
+  // External Disturbances
+  v_dot = v_dot + external_force_ / params_.mass - resistance * vnorm / params_.mass;
+  // Nonlinear term from cable
+  v_dot = v_dot + params_.mp * params_.lp * q_dot_cable_local.norm() * q_dot_cable_local.norm() * cur_state.q_cable;
+  // final
+  v_dot = v_dot / (params_.mass + params_.mp);
 
   R_dot = R * omega_tensor;
 
   omega_dot = params_.J.inverse() * (torque_thrust.topRows(3) - cur_state.omega.cross(params_.J * cur_state.omega) + external_moment_);
+
+  // ROS_INFO("u_vector state -> [%2.3f, %2.3f, %2.3f]",u_vector(0), u_vector(1), u_vector(2));
+
+  q_dot_dot_cable_local    = cur_state.q_cable.cross(cur_state.q_cable.cross(u_vector)) - params_.mass * params_.lp * q_dot_cable_local.norm() * q_dot_cable_local.norm() * cur_state.q_cable;
+  q_dot_dot_cable_local    = q_dot_dot_cable_local / (params_.mass * params_.lp);
+
+  // ROS_INFO("q_dot_dot_cable_local state -> [%2.3f, %2.3f, %2.3f]",q_dot_dot_cable_local(0), q_dot_dot_cable_local(1), q_dot_dot_cable_local(2));
+  // ROS_INFO("cable state frrom hpp file-> [%2.3f, %2.3f, %2.3f]",cur_state.q_cable(0), cur_state.q_cable(1), cur_state.q_cable(2));
+  // ROS_INFO("cable dot state -> [%2.3f, %2.3f, %2.3f]",cur_state.q_dot_cable(0), cur_state.q_dot_cable(1), cur_state.q_dot_cable(2));
 
   for (int i = 0; i < 3; i++) {
     dxdt.at(0 + i)  = x_dot(i);
@@ -406,22 +430,8 @@ void MultirotorModel::operator()(const MultirotorModel::InternalState& x, Multir
     dxdt.at(15 + i) = omega_dot(i);
 
     // Cable-suspended load
-    Eigen::Vector3d q_cable_dot_temp;
-    Eigen::Vector3d q_cable_dot_dot_temp;
-
-    // Cable-suspended load
-    q_cable_dot_temp(0) = 1;
-    q_cable_dot_temp(1) = 1;
-    q_cable_dot_temp(2) = 1;
-
-    // Cable-suspended load
-    q_cable_dot_dot_temp(0) = 4;
-    q_cable_dot_dot_temp(1) = 5;
-    q_cable_dot_dot_temp(2) = 6;
-
-    // Cable-suspended load
-    dxdt.at(18 + i) = q_cable_dot_temp(i);
-    dxdt.at(21 + i) = q_cable_dot_dot_temp(i);
+    dxdt.at(18 + i) = cur_state.q_dot_cable(i);
+    dxdt.at(21 + i) = q_dot_dot_cable_local(i);
 
   }
 

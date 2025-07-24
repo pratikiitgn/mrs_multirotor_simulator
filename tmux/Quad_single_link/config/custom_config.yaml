@@ -37,3 +37,9 @@ mrs_uav_managers:
       after_activation:
         controller: "Se3Controller"
         tracker: "MpcTracker"
+
+  constraint_manager:
+
+    default_constraints:
+      gps_garmin: "fast"
+      gps_baro: "fast"

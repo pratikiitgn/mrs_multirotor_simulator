@@ -165,6 +165,10 @@ UavSystemRos::UavSystemRos(ros::NodeHandle &nh, const std::string uav_name) {
 
   ph_imu_         = mrs_lib::PublisherHandler<sensor_msgs::Imu>(nh, uav_name + "/imu", 1, false);
   ph_odom_        = mrs_lib::PublisherHandler<nav_msgs::Odometry>(nh, uav_name + "/odom", 1, false);
+  // Cable-suspended load
+  ph_odom_cable_suspended_load   = mrs_lib::PublisherHandler<nav_msgs::Odometry>(nh, uav_name + "/odom_cable_suspended_load", 50, false);
+  // Cable-suspended load
+  ph_cable_suspended_load_directly   = mrs_lib::PublisherHandler<visualization_msgs::Marker>(nh, uav_name + "/cable_suspended_load_directly", 50, false);
   ph_rangefinder_ = mrs_lib::PublisherHandler<sensor_msgs::Range>(nh, uav_name + "/rangefinder", 1, false);
 
   // | ----------------------- subscribers ---------------------- |
@@ -274,8 +278,14 @@ void UavSystemRos::makeStep(const double dt) {
   MultirotorModel::State state = uav_system_.getState();
 
   // publish data
- 
+
   publishOdometry(state);
+
+  // Cable-suspended load
+  publishOdometry_for_cable_suspended_load(state);
+
+  // Cable-suspended load
+  publish_cable_suspended_load_directly(state);
 
   publishIMU(state);
 
@@ -364,6 +374,61 @@ void UavSystemRos::publishOdometry(const MultirotorModel::State &state) {
   odom.twist.twist.angular.z = state.omega(2);
 
   ph_odom_.publish(odom);
+
+}
+
+// Cable-suspended load
+/* publishOdometry_for_cable_suspended_load() //{ */
+
+void UavSystemRos::publishOdometry_for_cable_suspended_load(const MultirotorModel::State &state) {
+
+  Eigen::Vector3d pos_of_load;
+  pos_of_load           = state.x + model_params_.lp * state.q_cable;
+
+  nav_msgs::Odometry odom;
+
+  odom.header.stamp    = ros::Time::now();
+  odom.header.frame_id = _uav_name_ + "/world_origin" ;
+  odom.child_frame_id  = _frame_fcu_;
+
+  odom.pose.pose.position.x = pos_of_load(0);
+  odom.pose.pose.position.y = pos_of_load(1);
+  odom.pose.pose.position.z = pos_of_load(2);
+
+  ph_odom_cable_suspended_load.publish(odom);
+}
+
+void UavSystemRos::publish_cable_suspended_load_directly(const MultirotorModel::State &state) {
+
+  Eigen::Vector3d pos_of_load;
+  pos_of_load           = state.x + model_params_.lp * state.q_cable;
+
+  visualization_msgs::Marker marker;
+
+  marker.header.frame_id = _uav_name_ + "/world_origin" ;
+  marker.header.stamp    = ros::Time::now();
+
+  marker.pose.position.x = pos_of_load(0);
+  marker.pose.position.y = pos_of_load(1);
+  marker.pose.position.z = pos_of_load(2);
+
+  marker.pose.orientation = mrs_lib::AttitudeConverter(0, 0, 0);
+
+  marker.color.a = 1;
+  marker.color.r = 1;
+  marker.color.g = 0;
+  marker.color.b = 0;
+
+  marker.scale.x = 0.2;
+  marker.scale.y = 0.2;
+  marker.scale.z = 0.2;
+
+  marker.type = visualization_msgs::Marker::SPHERE;
+
+  marker.ns       = "pandulum";
+  // marker.lifetime = ros::Duration(2.0 / 100.0);
+
+  ph_cable_suspended_load_directly.publish(marker);
 }
 
 //}

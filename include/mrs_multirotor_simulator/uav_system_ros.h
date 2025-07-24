@@ -30,6 +30,8 @@
 #include <mrs_msgs/HwApiPositionCmd.h>
 #include <mrs_msgs/TrackerCommand.h>
 
+#include <visualization_msgs/Marker.h>
+
 namespace mrs_multirotor_simulator
 {
 
@@ -87,9 +89,19 @@ private:
 
   mrs_lib::PublisherHandler<sensor_msgs::Imu>   ph_imu_;
   mrs_lib::PublisherHandler<nav_msgs::Odometry> ph_odom_;
+  // Cable-suspended load
+  mrs_lib::PublisherHandler<nav_msgs::Odometry> ph_odom_cable_suspended_load;
+  // Cable-suspended load
+  mrs_lib::PublisherHandler<visualization_msgs::Marker> ph_cable_suspended_load_directly;
+
   mrs_lib::PublisherHandler<sensor_msgs::Range> ph_rangefinder_;
 
   void publishOdometry(const MultirotorModel::State& state);
+  // Cable-suspended load
+  void publishOdometry_for_cable_suspended_load(const MultirotorModel::State &state);
+  // Cable-suspended load
+  void publish_cable_suspended_load_directly(const MultirotorModel::State &state);
+
   void publishIMU(const MultirotorModel::State& state);
   void publishRangefinder(const MultirotorModel::State& state);
 

@@ -13,7 +13,7 @@ uav_names: [
 
 uav1:
 # // Cable-suspended load
-  type: "x500_with_cable_suspended_load"
+  type: "x500"
   spawn:
     x: 0.0
     y: 0.0

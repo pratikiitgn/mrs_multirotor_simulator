@@ -21,6 +21,10 @@ frames:
   rangefinder:
     name: "garmin"
     publish_tf: true
+    # // Cable-suspended load
+  cable_suspended_load:
+    name: "cable_suspended_load"
+    publish_tf: true
 
 collisions:
   enabled: true
