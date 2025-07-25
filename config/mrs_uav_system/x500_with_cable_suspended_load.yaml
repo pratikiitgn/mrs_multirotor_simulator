@@ -5,11 +5,6 @@ motor_params:
   a: 0.28980
   b: -0.17647
 
-# // Cable-suspended load
-cable_suspended_load_params:
-  mp: 0.1
-  lp: 1
-
 # these model parameters can be used when
 # - 'control group', and/or
 # - 'actuator control'

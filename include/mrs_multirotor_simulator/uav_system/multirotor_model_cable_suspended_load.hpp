@@ -50,7 +50,7 @@ public:
 
       // Cable-suspended load
       mp                   = 0.1;           // mass of load
-      lp                   = 1;             // length of cable
+      lp                   = 2;             // length of cable
 
       J       = Eigen::Matrix3d::Zero();
       J(0, 0) = mass * (3.0 * arm_length * arm_length + body_height * body_height) / 12.0;
@@ -90,7 +90,7 @@ public:
     double min_rpm;
     double air_resistance_coeff;
 
-    // Cable-suspended load
+    // // Cable-suspended load
     double mp;
     double lp;
 

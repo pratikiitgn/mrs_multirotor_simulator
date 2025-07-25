@@ -7,10 +7,6 @@ x500_with_cable_suspended_load:
   motor_time_constant: 0.03  # [s]
   air_resistance_coeff: 0.30 # [-]
 
-# // Cable-suspended load
-  lp: 1         # [m]
-  mp: 0.1          # [kg]
-
   propulsion:
 
     # force [N] = force_constant * rpm^2
