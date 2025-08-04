@@ -16,30 +16,67 @@ mrs_uav_managers:
     initial_state_estimator: "gps_baro" # will be used as the first state estimator
     agl_height_estimator: "garmin_agl" # only slightly filtered height for checking min height (not used in control feedback)
 
+  control_manager:
+
+    ExampleController:
+      address: "example_controller_plugin/ExampleController"
+      namespace: "example_controller"
+      eland_threshold: 20.0 # [m], position error triggering eland
+      failsafe_threshold: 30.0 # [m], position error triggering failsafe land
+      odometry_innovation_threshold: 1.5 # [m], position odometry innovation threshold
+      human_switchable: true
+
+      # which outputs the controller can provide
+      outputs:
+        actuators:             false
+        control_group:         false
+        attitude_rate:         false
+        attitude:              true
+        acceleration_hdg_rate: false
+        acceleration_hdg:      false
+        velocity_hdg_rate:     false
+        velocity_hdg:          false
+        position:              false
+
+    # list of names of dynamically loaded controllers
+    controllers : [
+      "ExampleController",
+    ]
+
   uav_manager:
 
     takeoff:
-
-      during_takeoff:
-        controller: "MpcController"
-        tracker: "LandoffTracker"
-
       after_takeoff:
-        controller: "Se3Controller"
-        tracker: "MpcTracker"
+        controller: "ExampleController"
 
     midair_activation:
-
-      during_activation:
-        controller: "MidairActivationController"
-        tracker: "MidairActivationTracker"
-
       after_activation:
-        controller: "Se3Controller"
-        tracker: "MpcTracker"
+        controller: "ExampleController"
+
+  # uav_manager:
+
+  #   takeoff:
+  #     during_takeoff:
+  #       controller: "MpcController"
+  #       tracker: "LandoffTracker"
+
+  #     after_takeoff:
+  #       controller: "Se3Controller"
+  #       tracker: "MpcTracker"
+
+  #   midair_activation:
+
+  #     during_activation:
+  #       controller: "MidairActivationController"
+  #       tracker: "MidairActivationTracker"
+
+  #     after_activation:
+  #       controller: "Se3Controller"
+  #       tracker: "MpcTracker"
 
   constraint_manager:
 
     default_constraints:
       gps_garmin: "fast"
       gps_baro: "fast"
+

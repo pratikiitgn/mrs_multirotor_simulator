@@ -163,13 +163,17 @@ UavSystemRos::UavSystemRos(ros::NodeHandle &nh, const std::string uav_name) {
 
   // | ----------------------- publishers ----------------------- |
 
-  ph_imu_         = mrs_lib::PublisherHandler<sensor_msgs::Imu>(nh, uav_name + "/imu", 1, false);
-  ph_odom_        = mrs_lib::PublisherHandler<nav_msgs::Odometry>(nh, uav_name + "/odom", 1, false);
+  ph_imu_                                   = mrs_lib::PublisherHandler<sensor_msgs::Imu>(nh, uav_name + "/imu", 250, false);
+  ph_odom_                                  = mrs_lib::PublisherHandler<nav_msgs::Odometry>(nh, uav_name + "/odom", 250, false);
   // Cable-suspended load
-  ph_odom_cable_suspended_load   = mrs_lib::PublisherHandler<nav_msgs::Odometry>(nh, uav_name + "/odom_cable_suspended_load", 50, false);
+  ph_quadcopter_state                       = mrs_lib::PublisherHandler<nav_msgs::Odometry>(nh, uav_name + "/quadcopter_state", 250, false);
   // Cable-suspended load
-  ph_cable_suspended_load_directly   = mrs_lib::PublisherHandler<visualization_msgs::Marker>(nh, uav_name + "/cable_suspended_load_directly", 50, false);
-  ph_rangefinder_ = mrs_lib::PublisherHandler<sensor_msgs::Range>(nh, uav_name + "/rangefinder", 1, false);
+  ph_cable_state                            = mrs_lib::PublisherHandler<nav_msgs::Odometry>(nh, uav_name + "/cable_state", 250, false);
+  // Cable-suspended load
+  ph_pos_of_cable_suspended_load            = mrs_lib::PublisherHandler<nav_msgs::Odometry>(nh, uav_name + "/pos_of_cable_suspended_load", 250, false);
+  // Cable-suspended load
+  ph_pos_of_cable_suspended_load_in_rviz    = mrs_lib::PublisherHandler<visualization_msgs::Marker>(nh, uav_name + "/pos_of_cable_suspended_load_in_rviz", 50, false);
+  ph_rangefinder_                           = mrs_lib::PublisherHandler<sensor_msgs::Range>(nh, uav_name + "/rangefinder", 1, false);
 
   // | ----------------------- subscribers ---------------------- |
 
@@ -282,10 +286,16 @@ void UavSystemRos::makeStep(const double dt) {
   publishOdometry(state);
 
   // Cable-suspended load
-  publishOdometry_for_cable_suspended_load(state);
+  publish_quadcopter_state(state);
 
   // Cable-suspended load
-  publish_cable_suspended_load_directly(state);
+  publish_cable_state(state);
+
+  // Cable-suspended load
+  publish_pos_of_cable_suspended_load(state);
+
+  // Cable-suspended load
+  publish_pos_of_cable_suspended_load_in_rviz(state);
 
   publishIMU(state);
 
@@ -363,7 +373,8 @@ void UavSystemRos::publishOdometry(const MultirotorModel::State &state) {
   odom.pose.pose.position.y = state.x(1);
   odom.pose.pose.position.z = state.x(2);
 
-  Eigen::Vector3d vel_body = state.R.transpose() * state.v;
+  // Eigen::Vector3d vel_body = state.R.transpose() * state.v;
+  Eigen::Vector3d vel_body = state.v;
 
   odom.twist.twist.linear.x = vel_body(0);
   odom.twist.twist.linear.y = vel_body(1);
@@ -378,9 +389,63 @@ void UavSystemRos::publishOdometry(const MultirotorModel::State &state) {
 }
 
 // Cable-suspended load
-/* publishOdometry_for_cable_suspended_load() //{ */
+/* publish_quadcopter_state() //{ */
 
-void UavSystemRos::publishOdometry_for_cable_suspended_load(const MultirotorModel::State &state) {
+void UavSystemRos::publish_quadcopter_state(const MultirotorModel::State &state) {
+
+  nav_msgs::Odometry odom;
+
+  odom.header.stamp    = ros::Time::now();
+  odom.header.frame_id = _frame_world_;
+  odom.child_frame_id  = _frame_fcu_;
+
+  odom.pose.pose.orientation = mrs_lib::AttitudeConverter(state.R);
+
+  odom.pose.pose.position.x = state.x(0);
+  odom.pose.pose.position.y = state.x(1);
+  odom.pose.pose.position.z = state.x(2);
+
+  // Eigen::Vector3d vel_body = state.R.transpose() * state.v;
+  Eigen::Vector3d vel_body = state.v;
+
+  odom.twist.twist.linear.x = vel_body(0);
+  odom.twist.twist.linear.y = vel_body(1);
+  odom.twist.twist.linear.z = vel_body(2);
+
+  odom.twist.twist.angular.x = state.omega(0);
+  odom.twist.twist.angular.y = state.omega(1);
+  odom.twist.twist.angular.z = state.omega(2);
+
+  ph_quadcopter_state.publish(odom);
+
+}
+
+// Cable-suspended load
+/* publish_cable_state() //{ */
+
+void UavSystemRos::publish_cable_state(const MultirotorModel::State &state) {
+
+  nav_msgs::Odometry odom;
+
+  odom.header.stamp    = ros::Time::now();
+  // odom.header.frame_id = _uav_name_ + "/world_origin" ;
+  // odom.child_frame_id  = _frame_fcu_;
+
+  odom.pose.pose.position.x = state.q_cable[0];
+  odom.pose.pose.position.y = state.q_cable[1];
+  odom.pose.pose.position.z = state.q_cable[2];
+
+  odom.twist.twist.linear.x = state.q_dot_cable(0);
+  odom.twist.twist.linear.y = state.q_dot_cable(1);
+  odom.twist.twist.linear.z = state.q_dot_cable(2);
+
+  ph_cable_state.publish(odom);
+}
+
+// Cable-suspended load
+/* publish_pos_of_cable_suspended_load() //{ */
+
+void UavSystemRos::publish_pos_of_cable_suspended_load(const MultirotorModel::State &state) {
 
   Eigen::Vector3d pos_of_load;
   pos_of_load           = state.x + model_params_.lp * state.q_cable;
@@ -395,10 +460,10 @@ void UavSystemRos::publishOdometry_for_cable_suspended_load(const MultirotorMode
   odom.pose.pose.position.y = pos_of_load(1);
   odom.pose.pose.position.z = pos_of_load(2);
 
-  ph_odom_cable_suspended_load.publish(odom);
+  ph_pos_of_cable_suspended_load.publish(odom);
 }
 
-void UavSystemRos::publish_cable_suspended_load_directly(const MultirotorModel::State &state) {
+void UavSystemRos::publish_pos_of_cable_suspended_load_in_rviz(const MultirotorModel::State &state) {
 
   Eigen::Vector3d pos_of_load;
   pos_of_load           = state.x + model_params_.lp * state.q_cable;
@@ -428,7 +493,7 @@ void UavSystemRos::publish_cable_suspended_load_directly(const MultirotorModel::
   marker.ns       = "pandulum";
   // marker.lifetime = ros::Duration(2.0 / 100.0);
 
-  ph_cable_suspended_load_directly.publish(marker);
+  ph_pos_of_cable_suspended_load_in_rviz.publish(marker);
 }
 
 //}

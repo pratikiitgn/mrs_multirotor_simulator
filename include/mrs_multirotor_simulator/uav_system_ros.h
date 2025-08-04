@@ -90,17 +90,25 @@ private:
   mrs_lib::PublisherHandler<sensor_msgs::Imu>   ph_imu_;
   mrs_lib::PublisherHandler<nav_msgs::Odometry> ph_odom_;
   // Cable-suspended load
-  mrs_lib::PublisherHandler<nav_msgs::Odometry> ph_odom_cable_suspended_load;
+  mrs_lib::PublisherHandler<nav_msgs::Odometry> ph_quadcopter_state;
   // Cable-suspended load
-  mrs_lib::PublisherHandler<visualization_msgs::Marker> ph_cable_suspended_load_directly;
+  mrs_lib::PublisherHandler<nav_msgs::Odometry> ph_cable_state;
+  // Cable-suspended load
+  mrs_lib::PublisherHandler<nav_msgs::Odometry> ph_pos_of_cable_suspended_load;
+  // Cable-suspended load
+  mrs_lib::PublisherHandler<visualization_msgs::Marker> ph_pos_of_cable_suspended_load_in_rviz;
 
   mrs_lib::PublisherHandler<sensor_msgs::Range> ph_rangefinder_;
 
   void publishOdometry(const MultirotorModel::State& state);
   // Cable-suspended load
-  void publishOdometry_for_cable_suspended_load(const MultirotorModel::State &state);
+  void publish_quadcopter_state(const MultirotorModel::State &state);
   // Cable-suspended load
-  void publish_cable_suspended_load_directly(const MultirotorModel::State &state);
+  void publish_cable_state(const MultirotorModel::State &state);
+  // Cable-suspended load
+  void publish_pos_of_cable_suspended_load(const MultirotorModel::State &state);
+  // Cable-suspended load
+  void publish_pos_of_cable_suspended_load_in_rviz(const MultirotorModel::State &state);
 
   void publishIMU(const MultirotorModel::State& state);
   void publishRangefinder(const MultirotorModel::State& state);
