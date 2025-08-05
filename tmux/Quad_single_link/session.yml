@@ -6,7 +6,7 @@ attach: false
 tmux_options: -f /etc/ctu-mrs/tmux.conf
 # you can modify these
 pre_window: export UAV_NAME=uav1; export RUN_TYPE=simulation; export UAV_TYPE=x500
-startup_window: control
+startup_window: status
 windows:
   - roscore:
       layout: tiled
@@ -38,14 +38,6 @@ windows:
           custom_config:=./config/custom_config.yaml
           world_config:=./config/world_config.yaml
           network_config:=./config/network_config.yaml
-  - CAC:
-      layout: tiled
-      panes:
-        # - waitForHw; roslaunch mrs_uav_core core.launch
-          # platform_config:=`rospack find mrs_multirotor_simulator`/config/mrs_uav_system/$UAV_TYPE.yaml
-          # custom_config:=./config/custom_config.yaml
-          # world_config:=./config/world_config.yaml
-          # network_config:=./config/network_config.yaml
   - rviz:
       layout: tiled
       panes:

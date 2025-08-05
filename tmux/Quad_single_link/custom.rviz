@@ -11,6 +11,11 @@ Panels:
         - /EstimationManager1/odom_main1/Shape1
         - /EstimationManager1/odom_main1/Covariance1
         - /MpcTracker1
+        - /MpcTracker1/MpcPredictionTrajectory1
+        - /MpcTracker1/MpcInnerReference1
+        - /TrajectoryGeneration1
+        - /TrajectoryGeneration1/final1
+        - /TrajectoryGeneration1/original1
         - /Load1
         - /Load1/Namespaces1
       Splitter Ratio: 0.5310173630714417
@@ -351,7 +356,7 @@ Visualization Manager:
               Value: true
             Value: false
           Enabled: true
-          Keep: 5000
+          Keep: 2000
           Name: odom_main
           Position Tolerance: 0.009999999776482582
           Queue Size: 10
@@ -382,7 +387,7 @@ Visualization Manager:
           Head Length: 0.07000000029802322
           Head Radius: 0.029999999329447746
           Name: MpcPredictionTrajectory
-          Queue Size: 10
+          Queue Size: 2000
           Shaft Length: 0.23000000417232513
           Shaft Radius: 0.009999999776482582
           Shape: Arrow (Flat)
@@ -399,7 +404,7 @@ Visualization Manager:
           Head Length: 0.07000000029802322
           Head Radius: 0.029999999329447746
           Name: MpcInnerReference
-          Queue Size: 10
+          Queue Size: 2000
           Shaft Length: 0.23000000417232513
           Shaft Radius: 0.009999999776482582
           Shape: Axes
@@ -445,7 +450,7 @@ Visualization Manager:
           Name: final
           Namespaces:
             {}
-          Queue Size: 100
+          Queue Size: 2000
           Value: true
         - Class: rviz/MarkerArray
           Enabled: true
@@ -453,7 +458,7 @@ Visualization Manager:
           Name: original
           Namespaces:
             {}
-          Queue Size: 100
+          Queue Size: 2000
           Value: true
       Enabled: true
       Name: TrajectoryGeneration
@@ -506,7 +511,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 17.851844787597656
+      Distance: 41.30517578125
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -514,17 +519,17 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: 1.2198846340179443
-        Y: -0.35796231031417847
-        Z: -0.016533032059669495
+        X: 1.2511121034622192
+        Y: 1.2958667278289795
+        Z: 0.5252191424369812
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.1104000061750412
+      Pitch: 0.060399457812309265
       Target Frame: uav1/fcu
-      Yaw: 0.042213473469018936
+      Yaw: 4.838569164276123
     Saved: ~
 Window Geometry:
   Displays:
