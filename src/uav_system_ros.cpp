@@ -373,8 +373,7 @@ void UavSystemRos::publishOdometry(const MultirotorModel::State &state) {
   odom.pose.pose.position.y = state.x(1);
   odom.pose.pose.position.z = state.x(2);
 
-  // Eigen::Vector3d vel_body = state.R.transpose() * state.v;
-  Eigen::Vector3d vel_body = state.v;
+  Eigen::Vector3d vel_body = state.R.transpose() * state.v;
 
   odom.twist.twist.linear.x = vel_body(0);
   odom.twist.twist.linear.y = vel_body(1);

@@ -9,12 +9,12 @@ mrs_uav_managers:
 
     # loaded state estimator plugins
     state_estimators: [
-      "gps_garmin",
+      # "gps_garmin",
       "gps_baro",
     ]
 
     initial_state_estimator: "gps_baro" # will be used as the first state estimator
-    agl_height_estimator: "garmin_agl" # only slightly filtered height for checking min height (not used in control feedback)
+    agl_height_estimator: "" # only slightly filtered height for checking min height (not used in control feedback)
 
   control_manager:
 
@@ -43,15 +43,38 @@ mrs_uav_managers:
       "ExampleController",
     ]
 
+    safety:
+
+      tilt_error_disarm:
+        enabled: false
+
   uav_manager:
 
     takeoff:
+      during_takeoff:
+        controller: "MpcController"
+        tracker: "LandoffTracker"
       after_takeoff:
         controller: "ExampleController"
 
     midair_activation:
+      during_activation:
+        controller: "MidairActivationController"
+        tracker: "MidairActivationTracker"
+
       after_activation:
         controller: "ExampleController"
+
+    min_height_checking:
+      enabled: false
+
+    max_height_checking:
+      enabled: false
+
+  constraint_manager:
+
+    default_constraints:
+      gps_baro: "fast"
 
   # uav_manager:
 
@@ -77,6 +100,6 @@ mrs_uav_managers:
   constraint_manager:
 
     default_constraints:
-      gps_garmin: "fast"
+      # gps_garmin: "fast"
       gps_baro: "fast"
 

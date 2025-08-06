@@ -6,6 +6,10 @@ Panels:
       Expanded:
         - /TF1/Frames1
         - /TF1/Tree1
+        - /ControlManager1
+        - /ControlManager1/control_reference1
+        - /ControlManager1/control_reference1/Shape1
+        - /ControlManager1/Bumper1
         - /EstimationManager1
         - /EstimationManager1/odom_main1
         - /EstimationManager1/odom_main1/Shape1
@@ -13,11 +17,13 @@ Panels:
         - /MpcTracker1
         - /MpcTracker1/MpcPredictionTrajectory1
         - /MpcTracker1/MpcInnerReference1
+        - /MpcTracker1/PostprocessedTrajectory1
+        - /MpcTracker1/PostprocessedTrajectory1/Poses1
         - /TrajectoryGeneration1
         - /TrajectoryGeneration1/final1
         - /TrajectoryGeneration1/original1
         - /Load1
-        - /Load1/Namespaces1
+        - /Load1/Status1
       Splitter Ratio: 0.5310173630714417
     Tree Height: 865
   - Class: rviz/Selection
@@ -249,7 +255,7 @@ Visualization Manager:
           Marker Topic: /uav1/control_manager/disturbances_markers
           Name: Disturbances
           Namespaces:
-            control_manager: true
+            {}
           Queue Size: 100
           Value: true
         - Angle Tolerance: 0.009999999776482582
@@ -276,8 +282,8 @@ Visualization Manager:
           Queue Size: 10
           Shape:
             Alpha: 1
-            Axes Length: 1
-            Axes Radius: 0.10000000149011612
+            Axes Length: 0.20000000298023224
+            Axes Radius: 0.029999999329447746
             Color: 255; 25; 0
             Head Length: 0.30000001192092896
             Head Radius: 0.10000000149011612
@@ -362,7 +368,7 @@ Visualization Manager:
           Queue Size: 10
           Shape:
             Alpha: 1
-            Axes Length: 0.5
+            Axes Length: 0.10000000149011612
             Axes Radius: 0.009999999776482582
             Color: 0; 25; 255
             Head Length: 1
@@ -460,7 +466,7 @@ Visualization Manager:
             {}
           Queue Size: 2000
           Value: true
-      Enabled: true
+      Enabled: false
       Name: TrajectoryGeneration
     - Class: rviz/Marker
       Enabled: true
@@ -511,7 +517,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 41.30517578125
+      Distance: 5.849916934967041
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -519,17 +525,17 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: 1.2511121034622192
-        Y: 1.2958667278289795
-        Z: 0.5252191424369812
+        X: 0.06070313602685928
+        Y: -0.6278970241546631
+        Z: -0.7472884654998779
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.060399457812309265
+      Pitch: 0.7004000544548035
       Target Frame: uav1/fcu
-      Yaw: 4.838569164276123
+      Yaw: 6.238579273223877
     Saved: ~
 Window Geometry:
   Displays:
