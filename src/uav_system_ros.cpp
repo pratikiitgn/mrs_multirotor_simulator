@@ -441,6 +441,7 @@ void UavSystemRos::publish_cable_state(const MultirotorModel::State &state) {
   ph_cable_state.publish(odom);
 }
 
+
 // Cable-suspended load
 /* publish_pos_of_cable_suspended_load() //{ */
 
